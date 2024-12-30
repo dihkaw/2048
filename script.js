@@ -41,6 +41,8 @@ function render() {
             gameContainer.appendChild(tile);
         });
     });
+    scoreDisplay.innerText = `Score: ${score}`; // Update score display
+    checkGameOver();
 }
 
 // Get tile color based on value
@@ -63,19 +65,21 @@ function getTileColor(value) {
 
 // Handle key presses for movement
 document.addEventListener('keydown', (event) => {
-    switch (event.key) {
-        case 'ArrowUp':
-            moveUp();
-            break;
-        case 'ArrowDown':
-            moveDown();
-            break;
-        case 'ArrowLeft':
-            moveLeft();
-            break;
-        case 'ArrowRight':
-            moveRight();
-            break;
+    if (!isGameOver()) {
+        switch (event.key) {
+            case 'ArrowUp':
+                moveUp();
+                break;
+            case 'ArrowDown':
+                moveDown();
+                break;
+            case 'ArrowLeft':
+                moveLeft();
+                break;
+            case 'ArrowRight':
+                moveRight();
+                break;
+        }
     }
 });
 
@@ -155,13 +159,42 @@ function moveRight() {
 function mergeTiles(newTiles) {
     for (let i = 0; i < newTiles.length - 1; i++) {
         if (newTiles[i] === newTiles[i + 1]) {
-            newTiles[i] *= 2;
-            score += newTiles[i];
-            newTiles[i + 1] = 0;
+            newTiles[i] *= 2; // Menggabungkan ubin
+            score += newTiles[i]; // Menambah skor
+            newTiles[i + 1] = 0; // Mengosongkan ubin yang digabung
         }
     }
-    newTiles = newTiles.filter(value => value !== 0);
+    newTiles = newTiles.filter(value => value !== 0); // Menghapus ubin kosong
     return newTiles;
+}
+
+// Check if the game is over
+function checkGameOver() {
+    if (isGameOver()) {
+        alert(`Game Over! Your score is: ${score}`);
+    }
+}
+
+// Check if there are no moves left
+function isGameOver() {
+    // Check for empty tiles
+    for (let row of board) {
+        if (row.includes(0)) {
+            return false;
+        }
+    }
+    // Check for possible merges
+    for (let row = 0; row < 4; row++) {
+        for (let col = 0; col < 4; col++) {
+            if (col < 3 && board[row][col] === board[row][col + 1]) {
+                return false; // Can merge right
+            }
+            if (row < 3 && board[row][col] === board[row + 1][col]) {
+                return false; // Can merge down
+            }
+        }
+    }
+    return true; // No moves left
 }
 
 // Restart the game
